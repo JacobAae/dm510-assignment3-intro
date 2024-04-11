@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include<stdbool.h>
 
 int dm510fs_getattr( const char *, struct stat * );
 int dm510fs_readdir( const char *, void *, fuse_fill_dir_t, off_t, struct fuse_file_info * );
@@ -32,6 +33,26 @@ static struct fuse_operations dm510fs_oper = {
 	.init = dm510fs_init,
 	.destroy = dm510fs_destroy
 };
+
+#define MAX_DATA_IN_FILE 256
+#define MAX_PATH_LENGTH  256
+#define MAX_NAME_LENGTH  256
+
+
+/* The Inode for the filesystem*/
+typedef struct Inode {
+	bool is_active;
+	bool is_dir;
+	char data[MAX_DATA_IN_FILE];
+	char path[MAX_PATH_LENGTH];
+	char name[MAX_NAME_LENGTH];
+	mode_t mode;
+	nlink_t nlink;
+	off_t size;
+} Inode;
+
+
+
 
 /*
  * Return file attributes.
