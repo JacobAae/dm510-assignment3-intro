@@ -37,6 +37,7 @@ static struct fuse_operations dm510fs_oper = {
 #define MAX_DATA_IN_FILE 256
 #define MAX_PATH_LENGTH  256
 #define MAX_NAME_LENGTH  256
+#define MAX_INODES  64
 
 
 /* The Inode for the filesystem*/
@@ -51,7 +52,7 @@ typedef struct Inode {
 	off_t size;
 } Inode;
 
-
+Inode filesystem[MAX_INODES];
 
 
 /*
@@ -158,6 +159,16 @@ int dm510fs_release(const char *path, struct fuse_file_info *fi) {
  */
 void* dm510fs_init() {
     printf("init filesystem\n");
+
+	// Loop through all inodes - set them inactive
+	for( int i = 0; i < MAX_INODES; i++) {
+		filesystem[i].is_active = false;
+	}
+
+	// Add root inode and the hello file
+	
+
+
     return NULL;
 }
 
