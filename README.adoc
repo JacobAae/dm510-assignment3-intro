@@ -135,3 +135,73 @@ int dm510fs_mkdir(const char *path, mode_t mode) {
 ----
 
 If get attrs will not find the new inode, it will still report error.
+
+
+
+== Follow-up Questions
+
+=== Accessing IMADA lab.
+
+You need to vpn to SDU if you are not on campus.
+
+Download and install Cisco-anyconnect from https://any.sdu.dk/
+
+Try to run the vpn
+
+ /opt/cisco/anyconnect/bin/vpnui
+
+Get error when connecting
+
+ /opt/cisco/anyconnect/bin/acwebhelper: error while loading shared libraries: libwebkit2gtk-4.0.so.37: cannot open shared object file: No such file or directory
+ 
+Install half a world of deps
+
+----
+sudo apt-get install libwebkit2gtk-4.0-dev
+
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following packages were automatically installed and are no longer required:
+  libblkid1:i386 libmount1:i386
+Use 'sudo apt autoremove' to remove them.
+The following additional packages will be installed:
+  bsdextrautils bsdutils bzip2-doc eject fdisk gir1.2-javascriptcoregtk-4.0 gir1.2-soup-2.4 gir1.2-webkit2-4.0
+  icu-devtools libatk-bridge2.0-dev libatk1.0-dev libatspi2.0-dev libblkid-dev libblkid1 libblkid1:i386
+  libbrotli-dev libbz2-dev libcairo2-dev libdatrie-dev libdbus-1-dev libdeflate-dev libegl-dev libegl1-mesa-dev
+  libepoxy-dev libexpat1-dev libfdisk1 libffi-dev libfontconfig-dev libfreetype-dev libfribidi-dev
+  libgdk-pixbuf-2.0-dev libgl-dev libgles-dev libgles1 libglib2.0-dev libglib2.0-dev-bin libglvnd-core-dev
+  libglvnd-dev libglx-dev libgraphite2-dev libgtk-3-dev libharfbuzz-cairo0 libharfbuzz-dev libharfbuzz-gobject0
+  libharfbuzz-subset0 libice-dev libicu-dev libjavascriptcoregtk-4.0-18 libjavascriptcoregtk-4.0-dev libjbig-dev
+  libjpeg-dev libjpeg-turbo8-dev libjpeg8-dev liblerc-dev liblzma-dev libmount-dev libmount1 libmount1:i386
+  libopengl-dev libpango1.0-dev libpixman-1-dev libpng-dev libpng-tools libpsl-dev libpthread-stubs0-dev libsm-dev
+  libsmartcols1 libsoup-gnome2.4-1 libsoup2.4-dev libsqlite3-dev libthai-dev libtiff-dev libtiffxx6 libuuid1
+  libwayland-bin libwayland-dev libwebkit2gtk-4.0-37 libwebp-dev libx11-dev libxau-dev libxcb-render0-dev
+  libxcb-shm0-dev libxcb1-dev libxcomposite-dev libxcursor-dev libxdamage-dev libxdmcp-dev libxext-dev
+  libxfixes-dev libxft-dev libxi-dev libxinerama-dev libxkbcommon-dev libxml2-dev libxrandr-dev libxrender-dev
+  libxtst-dev libzstd-dev mount pango1.0-tools python3-distutils python3-lib2to3 rfkill util-linux uuid-dev
+  uuid-runtime wayland-protocols x11proto-dev xorg-sgml-doctools xtrans-dev zlib1g-dev
+----
+ 
+Then login with vpn 
+
+Ssh to the imada system - I need (maybe because I'm faculty member) to have `nat-sdu\\` in front of my username, i.e.
+
+ ssh nat-sdu\\jamik@imada0.stud-srv.sdu.dk
+
+
+=== Fuse Version
+
+.At IMADA: 
+----
+jamik@imada0:~$ fusermount -V
+fusermount version: 2.9.9
+----
+
+.My laptop
+----
+jacob@personal:~$ fusermount -V
+fusermount3 version: 3.14.0
+----
+
+Either version is fine.
