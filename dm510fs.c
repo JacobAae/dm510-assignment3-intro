@@ -10,6 +10,7 @@ int dm510fs_readdir( const char *, void *, fuse_fill_dir_t, off_t, struct fuse_f
 int dm510fs_open( const char *, struct fuse_file_info * );
 int dm510fs_read( const char *, char *, size_t, off_t, struct fuse_file_info * );
 int dm510fs_release(const char *path, struct fuse_file_info *fi);
+int dm510fs_mkdir(const char *path, mode_t mode);
 void* dm510fs_init();
 void dm510fs_destroy(void *private_data);
 /*
@@ -20,7 +21,7 @@ static struct fuse_operations dm510fs_oper = {
 	.getattr	= dm510fs_getattr,
 	.readdir	= dm510fs_readdir,
 	.mknod = NULL,
-	.mkdir = NULL,
+	.mkdir = dm510fs_mkdir,
 	.unlink = NULL,
 	.rmdir = NULL,
 	.truncate = NULL,
@@ -37,7 +38,7 @@ static struct fuse_operations dm510fs_oper = {
 #define MAX_DATA_IN_FILE 256
 #define MAX_PATH_LENGTH  256
 #define MAX_NAME_LENGTH  256
-#define MAX_INODES  64
+#define MAX_INODES  4
 
 
 /* The Inode for the filesystem*/
@@ -55,6 +56,15 @@ typedef struct Inode {
 Inode filesystem[MAX_INODES];
 
 
+void debug_inode(int i) {
+	Inode inode = filesystem[i];
+
+	printf("=============================================\n");
+	printf("      Path: %s\n", inode.path);
+	printf("=============================================\n");
+}
+
+
 /*
  * Return file attributes.
  * The "stat" structure is described in detail in the stat(2) manual page.
@@ -67,7 +77,8 @@ int dm510fs_getattr( const char *path, struct stat *stbuf ) {
 
 	memset(stbuf, 0, sizeof(struct stat));
 	for( int i = 0; i < MAX_INODES; i++) {
-		if( strcmp(filesystem[i].path, path) == 0 ) {
+		printf("===> %s  %s \n", path, filesystem[i].path);
+		if( filesystem[i].is_active && strcmp(filesystem[i].path, path) == 0 ) {
 			printf("Found inode for path %s at location %i\n", path, i);
 			stbuf->st_mode = filesystem[i].mode;
 			stbuf->st_nlink = filesystem[i].nlink;
@@ -143,6 +154,30 @@ int dm510fs_read( const char *path, char *buf, size_t size, off_t offset, struct
 			return filesystem[i].size;
 		}
 	}
+	return 0;
+}
+
+
+/* Make directories - TODO */
+int dm510fs_mkdir(const char *path, mode_t mode) {
+	printf("mkdir: (path=%s)\n", path);
+
+	// Locate the first unused Inode in the filesystem
+	for( int i = 0; i < MAX_INODES; i++) {
+		if( filesystem[i].is_active == false ) {
+			printf("mkdir: Found unused inode for at location %i\n", i);
+			// Use that for the directory
+			filesystem[i].is_active = true;
+			filesystem[i].is_dir = true;
+			filesystem[i].mode = S_IFDIR | 0755;
+			filesystem[i].nlink = 2;
+			memcpy(filesystem[i].path, path, strlen(path)+1); 			
+
+			debug_inode(i);
+			break;
+		}
+	}
+
 	return 0;
 }
 
