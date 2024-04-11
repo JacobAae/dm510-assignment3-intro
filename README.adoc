@@ -1,0 +1,137 @@
+= Getting started on Assignment 3
+
+The notes below is from my preparation for the intro. They differ a little from the actual code produced in the repository, but should give a fair indication of what happened.
+
+== Initial Setup
+
+Make a folder and git repo
+
+ mkdir myfilesystem
+ cd  myfilesystem
+ touch README.adoc
+ git init
+ git add README.adoc
+ git commit -m "Initial commit"
+
+Download the initial files
+
+ wget https://dm510-24.grydeske.dk/material/assignment3/dm510fs.c
+ wget https://dm510-24.grydeske.dk/material/assignment3/Makefile
+ git add  dm510fs.c Makefile
+ git commit -m "Initial framework file for FUSE filesystem"
+
+Open in editor and we are ready to start :)
+
+== Tooling
+
+Create folder to mount filesystem to
+
+ mkdir ~/dm510fs-mountpoint
+ chmod 755 ~/dm510fs-mountpoint/
+
+Also create a script to make it faster to compile and start
+
+[source,bash]
+----
+#!/bin/bash
+
+make
+umount ~/dm510fs-mountpoint/
+./dm510fs -f ~/dm510fs-mountpoint/  & (sleep 1 &&gnome-terminal -- bash -c 'cd ~/dm510fs-mountpoint/; exec bash -i')
+----
+
+== The Inode
+
+[source,c]
+.Inode structure 
+----
+#include <stdbool.h>
+
+
+#define FIXED_FILESIZE 128
+#define MAX_PATH_LENGTH 128
+
+/* The inode structure */
+typedef struct Inode{
+	bool is_dir;
+	char data[FIXED_FILESIZE];
+	char path[MAX_PATH_LENGTH];
+} Inode;
+----
+
+== The File directory
+
+
+[source,c]
+.Filesystem - Array of Inodes
+----
+Inode filesystem[MAX_ELEMENTS];
+----
+
+
+== Initialize the filesystem
+
+In `dm510fs_init` we can make the root inode (and other dirs/files for demo).
+
+[source,c]
+.Filesystem - Array of Inodes
+----
+printf("Setting all inodes to invalid\n");
+	
+for( int i = 0; i < MAX_ELEMENTS; i++) {
+    filesystem[i].is_valid = false;
+}
+----
+
+Looking at get_attr we see that the inode should contain values for these
+
+----
+stbuf->st_mode = S_IFREG | 0777;
+stbuf->st_nlink = 1;
+stbuf->st_size = 12;
+----
+
+Fill in the first inode as root dir, and the second inode as the _hello_ file.
+
+== Get Attributes
+
+Make for loop and locate the inode with the path supplied argument.
+
+If inode found, use values from that.
+
+
+
+== Create directory
+
+Using mkdir reveals: "Function not implemented"
+
+For this to work, we should have the `.mkdir` function implemented. It is currently null.
+
+We can see the signature in _/usr/include/fuse/fuse_compat.h_. 
+
+[source,c]
+----
+int (*mkdir)	   (const char *, mode_t);
+----
+
+[source,c]
+----
+// Prototype
+int dm510fs_mkdir(const char *path, mode_t mode);
+
+// Struct line
+.mkdir = dm510fs_mkdir,
+
+// Function
+int dm510fs_mkdir(const char *path, mode_t mode) {
+	printf("mkdir: (path=%s)\n", path);
+
+	// Locate free inode to use or return error
+
+	// Set data in the inode
+
+	return 0;
+}
+----
+
+If get attrs will not find the new inode, it will still report error.
