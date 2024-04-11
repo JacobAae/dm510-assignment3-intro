@@ -63,21 +63,20 @@ Inode filesystem[MAX_INODES];
  * This call is pretty much required for a usable filesystem.
 */
 int dm510fs_getattr( const char *path, struct stat *stbuf ) {
-	int res = 0;
 	printf("getattr: (path=%s)\n", path);
 
 	memset(stbuf, 0, sizeof(struct stat));
-	if( strcmp( path, "/" ) == 0 ) {
-		stbuf->st_mode = S_IFDIR | 0755;
-		stbuf->st_nlink = 2;
-	} else if( strcmp( path, "/hello" ) == 0 ) {
-		stbuf->st_mode = S_IFREG | 0777;
-		stbuf->st_nlink = 1;
-		stbuf->st_size = 12;
-	} else
-		res = -ENOENT;
+	for( int i = 0; i < MAX_INODES; i++) {
+		if( strcmp(filesystem[i].path, path) == 0 ) {
+			printf("Found inode for path %s at location %i\n", path, i);
+			stbuf->st_mode = filesystem[i].mode;
+			stbuf->st_nlink = filesystem[i].nlink;
+			stbuf->st_size = filesystem[i].size;
+			return 0;
+		}
+	}
 
-	return res;
+	return -ENOENT;
 }
 
 /*
@@ -177,8 +176,9 @@ void* dm510fs_init() {
 	filesystem[1].is_dir = false;
 	filesystem[1].mode = S_IFREG | 0777;
 	filesystem[1].nlink = 1;
-	memcpy(filesystem[0].path, "/hello", 6);
-	memcpy(filesystem[0].data, "Hello World!", 13);
+	filesystem[1].size = 12;
+	memcpy(filesystem[1].path, "/hello", 6);
+	memcpy(filesystem[1].data, "Hello World!", 13);
 
 
     return NULL;
