@@ -135,8 +135,15 @@ int dm510fs_open( const char *path, struct fuse_file_info *fi ) {
 */
 int dm510fs_read( const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi ) {
     printf("read: (path=%s)\n", path);
-	memcpy( buf, "Hello\n", 6 );
-	return 6;
+
+	for( int i = 0; i < MAX_INODES; i++) {
+		if( strcmp(filesystem[i].path, path) == 0 ) {
+			printf("Read: Found inode for path %s at location %i\n", path, i);
+			memcpy( buf, filesystem[i].data, filesystem[i].size );
+			return filesystem[i].size;
+		}
+	}
+	return 0;
 }
 
 /*
