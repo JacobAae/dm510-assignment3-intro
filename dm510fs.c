@@ -165,8 +165,20 @@ void* dm510fs_init() {
 		filesystem[i].is_active = false;
 	}
 
-	// Add root inode and the hello file
-	
+	// Add root inode 
+	filesystem[0].is_active = true;
+	filesystem[0].is_dir = true;
+	filesystem[0].mode = S_IFDIR | 0755;
+	filesystem[0].nlink = 2;
+	memcpy(filesystem[0].path, "/", 2); 
+
+	// Add inode for the hello file
+	filesystem[1].is_active = true;
+	filesystem[1].is_dir = false;
+	filesystem[1].mode = S_IFREG | 0777;
+	filesystem[1].nlink = 1;
+	memcpy(filesystem[0].path, "/hello", 6);
+	memcpy(filesystem[0].data, "Hello World!", 13);
 
 
     return NULL;
